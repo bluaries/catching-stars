@@ -10,12 +10,18 @@ DIR_OFFSETS = {DIR_STILL: (0, 0),
 
 MOVEMENT_SPEED = 6
 
-class Ship:
+class Model:
     def __init__(self, world, x, y):
         self.world = world
         self.x = x
         self.y = y
-        self.direction = DIR_STILL
+
+
+class Ship(Model):
+    def __init__(self, world, x, y):
+        super().__init__(world, x, y)
+
+        self.direction = DIR_RIGHT
 
     def move(self, direction):
         self.x += MOVEMENT_SPEED * DIR_OFFSETS[direction][0]
