@@ -9,8 +9,8 @@ class GameWindow(arcade.Window):
         super().__init__(width, height, title='Into the space')
 
         self.background = None
-        self.ship_sprite = arcade.Sprite('img/ship.png')
         self.world = World(width, height)
+        self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship)
 
     def set_up(self):
         self.background = arcade.load_texture("img/background.jpg")
@@ -21,9 +21,27 @@ class GameWindow(arcade.Window):
                                       SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
         self.ship_sprite.draw()
 
+    def on_key_press(self, key, key_modifiers):
+        self.world.on_key_press(key, key_modifiers)
+
     def update(self, delta):
         self.world.update(delta)
-        self.ship_sprite.set_position(self.world.ship.x, self.world.ship.y)
+
+
+class ModelSprite(arcade.Sprite):
+    def __init__(self, *args, **kwargs):
+        self.model = kwargs.pop('model', None)
+
+        super().__init__(*args, **kwargs)
+
+    def sync_with_model(self):
+        if self.model:
+            self.set_position(self.model.x, self.model.y)
+
+    def draw(self):
+        self.sync_with_model()
+        super().draw()
+
 if __name__ == '__main__':
     window = GameWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
     window.set_up()
