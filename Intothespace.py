@@ -4,7 +4,7 @@ from models import World, Ship
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 900
 METEORITE_COUNT = random.randint(2, 4)
-STAR_COUNT = random.randint(1, 7)
+STAR_COUNT = random.randint(3, 7)
 SPEED = 7
 
 class Meteorite(arcade.Sprite):
@@ -40,7 +40,7 @@ class GameWindow(arcade.Window):
 
         self.background = None
         self.meteo_sprite_list = None
-        self.star_speite_list = None
+        self.star_sprite_list = None
 
         self.world = World(width, height)
         self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship)
@@ -48,7 +48,7 @@ class GameWindow(arcade.Window):
     def set_up(self):
         self.background = arcade.load_texture("img/background.jpg")
         self.meteo_sprite_list = arcade.SpriteList()
-        self.star_speite_list = arcade.SpriteList()
+        self.star_sprite_list = arcade.SpriteList()
 
         for i in range(METEORITE_COUNT):
             meteo = Meteorite('img/meteorite.png')
@@ -64,9 +64,9 @@ class GameWindow(arcade.Window):
 
             star.center_x = random.randrange(SCREEN_WIDTH)
             star.center_y = random.randrange(SCREEN_HEIGHT,
-                                              SCREEN_HEIGHT + 300)
+                                             SCREEN_HEIGHT + 300)
 
-            self.meteo_sprite_list.append(star)
+            self.star_sprite_list.append(star)
 
 
 
@@ -76,6 +76,7 @@ class GameWindow(arcade.Window):
                                       SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
         self.ship_sprite.draw()
         self.meteo_sprite_list.draw()
+        self.star_sprite_list.draw()
 
     def on_key_press(self, key, key_modifiers):
         self.world.on_key_press(key, key_modifiers)
@@ -83,6 +84,7 @@ class GameWindow(arcade.Window):
     def update(self, delta):
         self.world.update(delta)
         self.meteo_sprite_list.update()
+        self.star_sprite_list.update()
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
