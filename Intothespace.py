@@ -4,13 +4,12 @@ from models import World, Ship
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 900
 METEORITE_COUNT = random.randint(2, 4)
-STAR_COUNT = 7
 SPEED = 7
 
 class Meteorite(arcade.Sprite):
     def reset_pos(self):
         self.center_y = random.randrange(SCREEN_HEIGHT,
-                                         SCREEN_HEIGHT + 300)
+                                         SCREEN_HEIGHT + 100)
         self.center_x = random.randrange(SCREEN_WIDTH)
 
 
@@ -20,55 +19,29 @@ class Meteorite(arcade.Sprite):
         if self.top < 0:
             self.reset_pos()
 
-class Star(arcade.Sprite):
-    def reset_pos_star(self):
-        self.center_y = random.randrange(SCREEN_HEIGHT,
-                                         SCREEN_HEIGHT + 450)
-        self.center_x = random.randrange(SCREEN_WIDTH)
-
-
-    def update(self):
-        self.center_y -= 4
-
-        if self.top < 0:
-            self.reset_pos_star()
-
-
 class GameWindow(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, title='Into the space')
 
         self.background = None
         self.meteo_sprite_list = None
-        self.star_speite_list = None
 
         self.world = World(width, height)
         self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship)
+        # self.meteo_sprite = ModelSprite('img/meteorite.png', model=self.world.meteo)
 
     def set_up(self):
         self.background = arcade.load_texture("img/background.jpg")
         self.meteo_sprite_list = arcade.SpriteList()
-        self.star_speite_list = arcade.SpriteList()
 
         for i in range(METEORITE_COUNT):
             meteo = Meteorite('img/meteorite.png')
 
             meteo.center_x = random.randrange(SCREEN_WIDTH)
-            meteo.center_y = random.randrange(SCREEN_HEIGHT,
-                                              SCREEN_HEIGHT + 300)
+            meteo.center_y = random.randrange(SCREEN_HEIGHT - 50,
+                                              SCREEN_HEIGHT + 100)
 
             self.meteo_sprite_list.append(meteo)
-
-        for i in range(STAR_COUNT):
-            star = Star('img/star.png')
-
-            star.center_x = random.randrange(SCREEN_WIDTH)
-            star.center_y = random.randrange(SCREEN_HEIGHT,
-                                              SCREEN_HEIGHT + 400)
-
-            self.meteo_sprite_list.append(star)
-
-
 
     def on_draw(self):
         arcade.start_render()
