@@ -39,6 +39,7 @@ class World:
         self.width = width
         self.height = height
         self.ship = Ship(self, 450, 130)
+        self.score = 0
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.SPACE:
