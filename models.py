@@ -1,4 +1,4 @@
-import arcade.key , random
+import arcade.key
 
 DIR_STILL = 0
 DIR_RIGHT = 1
@@ -34,14 +34,12 @@ class Ship(Model):
         if self.x < 0:
             self.x = 0
 
-
 class World:
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.ship = Ship(self, 450, 130)
         self.score = 0
-        self.stage = 1
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.SPACE:
