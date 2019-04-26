@@ -34,13 +34,22 @@ class Ship(Model):
         if self.x < 0:
             self.x = 0
 
+class Healthbar(Model):
+    def __init__(self, world, x, y):
+        super().__init__(world, x, y)
+
+
+
 class World:
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.ship = Ship(self, 450, 130)
+        self.healthbar_position = Healthbar(self, 130, 550)
         self.score = 0
         self.stage = 1
+        self.health = 100
+
 
     def on_key_press(self, key, key_modifiers):
         if key == arcade.key.SPACE:

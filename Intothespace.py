@@ -1,11 +1,11 @@
 import arcade , random
-from models import World, Ship
+from models import *
 
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 900
 METEORITE_COUNT = random.randint(3, 4)
 STAR_COUNT = random.randint(3, 7)
-SPEED_METEO = 9
+SPEED_METEO = 6
 SPEED_STAR = 4
 
 class Meteorite(arcade.Sprite):
@@ -46,9 +46,6 @@ class GameWindow(arcade.Window):
 
         self.world = World(width, height)
         self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship)
-        # self.healthbar = ModelSprite('img/healthbar.png')
-        # self.health = ModelSprite('img/health.png')
-
 
     def add_more_meteotire(self):
         for i in range(METEORITE_COUNT):
@@ -79,9 +76,11 @@ class GameWindow(arcade.Window):
 
     def check_hit_meteo(self):
         meteo_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.meteo_sprite_list)
-        if meteo_hit_list:
-            quit() # for test
-
+        for m in meteo_hit_list:
+            m.reset_pos()
+            self.world.health -= 10
+            if self.world.health == 0:
+                quit()
 
     def set_up(self):
         self.background = arcade.load_texture("img/background.jpg")
@@ -104,10 +103,12 @@ class GameWindow(arcade.Window):
                          self.height - 40,
                          arcade.color.WHITE, 18)
 
+        self.healthbar_sprite = ModelSprite(f'healthbar/h{self.world.health}.png',
+                                            model=self.world.healthbar_position)
+        self.healthbar_sprite.draw()
         self.ship_sprite.draw()
         self.meteo_sprite_list.draw()
         self.star_sprite_list.draw()
-
     def on_key_press(self, key, key_modifiers):
         self.world.on_key_press(key, key_modifiers)
 
@@ -134,8 +135,11 @@ class ModelSprite(arcade.Sprite):
         super().draw()
 
 
-if __name__ == '__main__':
+def main():
     window = GameWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
     window.set_up()
     arcade.run()
+
+if __name__ == '__main__':
+    main()
 
