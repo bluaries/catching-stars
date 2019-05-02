@@ -1,6 +1,5 @@
 """
 Artwork from https://www.flaticon.com
-
 """
 
 import arcade , random
@@ -9,9 +8,10 @@ from models import *
 SCREEN_HEIGHT = 670
 SCREEN_WIDTH = 900
 METEORITE_COUNT = random.randint(3, 4)
-STAR_COUNT = random.randint(3, 7)
+STAR_COUNT = random.randint(3, 5)
 SPEED_METEO = 6
 SPEED_STAR = 4
+SPEED_BG_STAR = 2
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
@@ -27,93 +27,116 @@ class ModelSprite(arcade.Sprite):
         self.sync_with_model()
         super().draw()
 
-class Meteorite(arcade.Sprite):
+class Meteo_Star_Sprite(arcade.Sprite):
     def reset_pos(self):
         self.center_y = random.randrange(SCREEN_HEIGHT,
                                          SCREEN_HEIGHT + 300)
         self.center_x = random.randrange(SCREEN_WIDTH)
 
-
     def update(self):
-        self.center_y -= SPEED_METEO
+        self.angle += self.change_angle
 
         if self.top < 0:
             self.reset_pos()
-
-class Star(arcade.Sprite):
-    def reset_pos_star(self):
-        self.center_y = random.randrange(SCREEN_HEIGHT,
-                                         SCREEN_HEIGHT + 300)
-        self.center_x = random.randrange(SCREEN_WIDTH)
-
-
-    def update(self):
-        self.center_y -= SPEED_STAR
-
-        if self.top < 0:
-            self.reset_pos_star()
-
 
 class GameWindow(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, title='Into the space')
 
         self.background = None
-        self.state = World.STATE_FROZEN
+        self.gameover = None
 
         self.world = World(width, height)
         self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship)
 
 
-    def add_more_meteorite(self):
+
+    def add_more_meteo_star(self):
         for i in range(METEORITE_COUNT):
-            meteo = Meteorite('img/meteorite.png')
+            meteo = Meteo_Star_Sprite('img/meteorite.png')
             meteo.center_x = random.randrange(SCREEN_WIDTH)
             meteo.center_y = random.randrange(SCREEN_HEIGHT,
-                                              SCREEN_HEIGHT + 300)
+                                        SCREEN_HEIGHT + 300)
 
             self.meteo_sprite_list.append(meteo)
 
-    def add_more_star(self):
         for i in range(STAR_COUNT):
-            star = Star('img/star.png')
+            star = Meteo_Star_Sprite('img/star.png')
 
             star.center_x = random.randrange(SCREEN_WIDTH)
             star.center_y = random.randrange(SCREEN_HEIGHT,
-                                             SCREEN_HEIGHT + 300)
+                                        SCREEN_HEIGHT + 300)
+
+            star.angle = random.randrange(3, 360)
+            star.change_angle = random.randrange(-5, 6)
 
             self.star_sprite_list.append(star)
 
-    def check_hit_star(self):
+        for i in range(STAR_COUNT):
+            bg_star = Meteo_Star_Sprite('img/bg_star.png')
+
+            bg_star.center_x = random.randrange(SCREEN_WIDTH)
+            bg_star.center_y = random.randrange(0,SCREEN_HEIGHT)
+
+            self.bg_star_list.append(bg_star)
+
+    def check_hit(self):
         star_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.star_sprite_list)
         for s in star_hit_list:
-            s.reset_pos_star()
+            s.reset_pos()
             self.world.score += 1
             # change stage
+            if self.world.score % 3 == 0:
+                self.world.bg_state += 1
+            elif self.world.score == 28*3 or  self.world.score == (28*3)*2:
+                self.world.bg_state = 0
             if self.world.score == 25:
                 self.world.stage += 1
+            elif self .world.score == 40:
+                self.world.stage += 1
 
-    def check_hit_meteo(self):
         meteo_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.meteo_sprite_list)
         for m in meteo_hit_list:
-            if self.world.health > 0:
-                m.reset_pos()
-                self.world.health -= 10
-                if self.world.health <= 0:
-                    self.world.die()
+            m.reset_pos()
+            self.world.health -= 10
+            if self.world.health <= 0:
+                self.world.die()
+
+    def run_level(self):
+        if self.world.health == 0:
+            self.meteo_sprite_list.move(0, 0)
+            self.star_sprite_list.move(0, 0)
+            self.bg_star_list.move(0, 0)
+        else:
+            if self.world.stage == 1 and self.world.health != 0:
+                self.meteo_sprite_list.move(0, -SPEED_METEO)
+                self.star_sprite_list.move(0, -SPEED_STAR)
+            elif self.world.stage == 2 and self.world.health != 0:
+                self.meteo_sprite_list.move(0, -(SPEED_METEO+3))
+                self.star_sprite_list.move(0, -(SPEED_STAR+3))
+            elif self.world.stage == 3 and self.world.health != 0:
+                self.meteo_sprite_list.move(0, -(SPEED_METEO+5))
+                self.star_sprite_list.move(0, -(SPEED_STAR+5))
+            self.bg_star_list.move(0, -SPEED_BG_STAR)
 
     def set_up(self):
-        self.background = arcade.load_texture("img/background.jpg")
+        self.background = arcade.load_texture(f'bg/bg{self.world.bg_state}.jpg')
+        self.gameover = arcade.load_texture('bg/gameover.png')
         self.meteo_sprite_list = arcade.SpriteList()
         self.star_sprite_list = arcade.SpriteList()
+        self.bg_star_list = arcade.SpriteList()
 
-        self.add_more_meteorite()
-        self.add_more_star()
+        self.add_more_meteo_star()
 
     def on_draw(self):
         arcade.start_render()
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-                                      SCREEN_WIDTH, SCREEN_HEIGHT, self.background)
+                                          SCREEN_WIDTH , SCREEN_HEIGHT, arcade.load_texture(f'bg/bg{self.world.bg_state}.jpg'))
+        self.ship_sprite.draw()
+        self.meteo_sprite_list.draw()
+        self.star_sprite_list.draw()
+        self.bg_star_list.draw()
+
         arcade.draw_text(f"| Score: {self.world.score}",
                          self.width - 120,
                          self.height - 40,
@@ -122,17 +145,13 @@ class GameWindow(arcade.Window):
                          self.width - 210,
                          self.height - 40,
                          arcade.color.WHITE, 18)
-        self.ship_sprite.draw()
-        self.meteo_sprite_list.draw()
-        self.star_sprite_list.draw()
-
         self.healthbar_sprite = ModelSprite(f'healthbar/h{self.world.health}.png',
                                             model=self.world.healthbar_position)
         self.healthbar_sprite.draw()
 
-        if self.world.state == 2:
-            arcade.draw_rectangle_filled(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-                                         SCREEN_WIDTH, SCREEN_HEIGHT, arcade.color.RED_BROWN)
+        if self.world.state == 3:
+            arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
+                                          SCREEN_WIDTH, SCREEN_HEIGHT, self.gameover)
             arcade.draw_text(f'GAME OVER', 300 , SCREEN_HEIGHT // 2, arcade.color.WHITE, 40)
 
     def on_key_press(self, key, key_modifiers):
@@ -142,8 +161,10 @@ class GameWindow(arcade.Window):
         self.world.update(delta)
         self.meteo_sprite_list.update()
         self.star_sprite_list.update()
-        self.check_hit_star()
-        self.check_hit_meteo()
+        self.bg_star_list.update()
+        self.check_hit()
+
+        self.run_level()
 
 
 def main():
@@ -153,4 +174,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

@@ -43,7 +43,8 @@ class Healthbar(Model):
 
 class World:
     STATE_FROZEN = 1
-    STATE_DEAD = 2
+    STATE_STARTED = 2
+    STATE_DEAD = 3
 
     def __init__(self, width, height):
         self.width = width
@@ -54,6 +55,7 @@ class World:
         self.score = 0
         self.stage = 1
         self.health = 100
+        self.bg_state = 1
 
         self.state = World.STATE_FROZEN
 
@@ -66,12 +68,35 @@ class World:
         if key == arcade.key.RIGHT:
             self.ship.direction = DIR_RIGHT
 
+    def start(self):
+        self.state = World.STATE_STARTED
+
     def freeze(self):
         self.state = World.STATE_FROZEN
+
+    def is_started(self):
+        return self.state == World.STATE_STARTED
 
     def die(self):
         self.state = World.STATE_DEAD
 
     def update(self, delta):
+        if self.state in [World.STATE_STARTED, World.STATE_DEAD]:
+            return
         self.ship.update(delta)
-
+# class Meteorite:
+#     def __init__(self, world):
+#         self.world = world
+#         self.x = 0
+#         self.y = 0
+#
+#     def reset_pos(self):
+#         self.y = random.randrange(SCREEN_HEIGHT,
+#                                          SCREEN_HEIGHT + 300)
+#         self.x = random.randrange(SCREEN_WIDTH)
+#
+#     def update(self, delta):
+#         self.y -= SPEED_METEO
+#         if self.y < 0:
+#             self.y = self.world.height
+#             self.reset_pos()
