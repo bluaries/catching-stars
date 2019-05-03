@@ -49,9 +49,9 @@ class World:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.ship = Ship(self, 450, 125)
+        self.ship = Ship(self, 275, 125)
+        self.healthbar_position = Healthbar(self, 110, 665)
 
-        self.healthbar_position = Healthbar(self, 130, 620)
         self.score = 0
         self.stage = 1
         self.health = 100
@@ -84,19 +84,3 @@ class World:
         if self.state in [World.STATE_STARTED, World.STATE_DEAD]:
             return
         self.ship.update(delta)
-# class Meteorite:
-#     def __init__(self, world):
-#         self.world = world
-#         self.x = 0
-#         self.y = 0
-#
-#     def reset_pos(self):
-#         self.y = random.randrange(SCREEN_HEIGHT,
-#                                          SCREEN_HEIGHT + 300)
-#         self.x = random.randrange(SCREEN_WIDTH)
-#
-#     def update(self, delta):
-#         self.y -= SPEED_METEO
-#         if self.y < 0:
-#             self.y = self.world.height
-#             self.reset_pos()

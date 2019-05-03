@@ -5,8 +5,9 @@ Artwork from https://www.flaticon.com
 import arcade , random
 from models import *
 
-SCREEN_HEIGHT = 670
-SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 700
+SCREEN_WIDTH = 570
+
 METEORITE_COUNT = random.randint(3, 4)
 STAR_COUNT = random.randint(3, 5)
 SPEED_METEO = 6
@@ -47,7 +48,7 @@ class GameWindow(arcade.Window):
         self.gameover = None
 
         self.world = World(width, height)
-        self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship)
+        self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship, scale=0.8)
 
 
 
@@ -115,8 +116,8 @@ class GameWindow(arcade.Window):
                 self.meteo_sprite_list.move(0, -(SPEED_METEO+3))
                 self.star_sprite_list.move(0, -(SPEED_STAR+3))
             elif self.world.stage == 3 and self.world.health != 0:
-                self.meteo_sprite_list.move(0, -(SPEED_METEO+5))
-                self.star_sprite_list.move(0, -(SPEED_STAR+5))
+                self.meteo_sprite_list.move(0, -(SPEED_METEO+6))
+                self.star_sprite_list.move(0, -(SPEED_STAR+6))
             self.bg_star_list.move(0, -SPEED_BG_STAR)
 
     def set_up(self):
@@ -130,29 +131,30 @@ class GameWindow(arcade.Window):
 
     def on_draw(self):
         arcade.start_render()
-        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
-                                          SCREEN_WIDTH , SCREEN_HEIGHT, arcade.load_texture(f'bg/bg{self.world.bg_state}.jpg'))
+        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,SCREEN_WIDTH ,
+                    SCREEN_HEIGHT, arcade.load_texture(f'bg/bg{self.world.bg_state}.jpg'))
+        self.bg_star_list.draw()
+
         self.ship_sprite.draw()
         self.meteo_sprite_list.draw()
         self.star_sprite_list.draw()
-        self.bg_star_list.draw()
 
         arcade.draw_text(f"| Score: {self.world.score}",
                          self.width - 120,
-                         self.height - 40,
+                         self.height - 45,
                          arcade.color.WHITE, 18)
         arcade.draw_text(f"Stage: {self.world.stage}",
                          self.width - 210,
-                         self.height - 40,
+                         self.height - 45,
                          arcade.color.WHITE, 18)
         self.healthbar_sprite = ModelSprite(f'healthbar/h{self.world.health}.png',
-                                            model=self.world.healthbar_position)
+                                            model=self.world.healthbar_position, scale=0.8)
         self.healthbar_sprite.draw()
 
         if self.world.state == 3:
             arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
                                           SCREEN_WIDTH, SCREEN_HEIGHT, self.gameover)
-            arcade.draw_text(f'GAME OVER', 300 , SCREEN_HEIGHT // 2, arcade.color.WHITE, 40)
+            arcade.draw_text(f'GAME OVER', 170, SCREEN_HEIGHT // 2, arcade.color.WHITE, 30)
 
     def on_key_press(self, key, key_modifiers):
         self.world.on_key_press(key, key_modifiers)
