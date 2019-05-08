@@ -1,4 +1,5 @@
 import arcade.key
+import random
 
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 900
@@ -36,11 +37,6 @@ class Ship(Model):
             self.x = 0
 
 
-class Healthbar(Model):
-    def __init__(self, world, x, y):
-        super().__init__(world, x, y)
-
-
 class World:
     STATE_FROZEN = 1
     STATE_STARTED = 2
@@ -50,19 +46,19 @@ class World:
         self.width = width
         self.height = height
         self.ship = Ship(self, 275, 125)
-        self.healthbar_position = Healthbar(self, 110, 665)
+        self.healthbar_position = Model(self, 110, 665)
 
         self.score = 0
         self.stage = 1
-        self.health = 100
+        self.health = 150
         self.bg_state = 1
 
         self.state = World.STATE_FROZEN
 
 
     def on_key_press(self, key, key_modifiers):
-        if key == arcade.key.SPACE:
-            self.ship.direction = DIR_STILL
+        # if key == arcade.key.SPACE:
+        #     arcade.pause(1 )
         if key == arcade.key.LEFT:
             self.ship.direction = DIR_LEFT
         if key == arcade.key.RIGHT:
