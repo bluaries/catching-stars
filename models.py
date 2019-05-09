@@ -1,9 +1,8 @@
 import arcade.key
-import random
 
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 900
-MOVEMENT_SPEED = 6
+MOVEMENT_SPEED = 8
 
 DIR_STILL = 0
 DIR_RIGHT = 1

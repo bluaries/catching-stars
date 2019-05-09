@@ -4,23 +4,23 @@ Artwork from https://www.flaticon.com
     https://www.freepik.com
     https://dribbble.com
 """
-
 import arcade
 import random
 from models import *
 
 SCREEN_HEIGHT = 700
 SCREEN_WIDTH = 570
-INSTRUCTION_0 = 0
-INSTRUCTION_1 = 1
+INSTRUCTIONS_0 = 0
+INSTRUCTIONS_1 = 1
 GAME_RUNNING = 2
 GAME_OVER = 3
 
 METEORITE_COUNT = random.randint(3, 4)
 STAR_COUNT = random.randint(4, 5)
-SPEED_METEO = 7
-SPEED_STAR = 5
+SPEED_METEO = 7.5
+SPEED_STAR = 5.5
 SPEED_BG_STAR = 2
+
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
@@ -36,6 +36,7 @@ class ModelSprite(arcade.Sprite):
         self.sync_with_model()
         super().draw()
 
+
 class ItemSprite(arcade.Sprite):
     def reset_pos(self):
         self.center_y = random.randrange(SCREEN_HEIGHT,
@@ -48,6 +49,7 @@ class ItemSprite(arcade.Sprite):
         if self.top < 0:
             self.reset_pos()
 
+
 class GameWindow(arcade.Window):
     def __init__(self, width, height):
         super().__init__(width, height, title='catching stars!')
@@ -55,11 +57,12 @@ class GameWindow(arcade.Window):
         self.background = None
         self.gameover = None
         self.instructions = []
-        self.current_state = INSTRUCTION_0
+        self.current_state = INSTRUCTIONS_0
 
         self.world = World(width, height)
         self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship, scale=0.47)
         self.instructions.append(arcade.load_texture('img/menu.jpg'))
+        self.instructions.append(arcade.load_texture('img/howtoplay.jpg'))
 
     def add_more_meteo_star(self):
         for i in range(METEORITE_COUNT):
@@ -74,7 +77,7 @@ class GameWindow(arcade.Window):
 
         for i in range(STAR_COUNT):
             star =  ItemSprite('img/star.png', scale=0.9)
-            bg_star =  ItemSprite('img/bg_star.png')
+            bg_star =  ItemSprite('bg/bg_star.png')
 
             star.center_x = random.randrange(SCREEN_WIDTH)
             star.center_y = random.randrange(SCREEN_HEIGHT,
@@ -96,8 +99,8 @@ class GameWindow(arcade.Window):
 
         self.heart_sprite_list.append(heart)
 
-    def set_moving(self,lst1, x1, y1, lst2, x2, y2, lst3, x3, y3):
-        lst1.move(x1, y1), lst2.move(x2, y2), lst3.move(x3, y3)
+    def set_moving(self,lst1, x1, y1, lst2, x2, y2):
+        lst1.move(x1, y1), lst2.move(x2, y2)
 
     def check_hit(self):
         star_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.star_sprite_list)
@@ -105,10 +108,7 @@ class GameWindow(arcade.Window):
             s.reset_pos()
             self.world.score += 1
             # change stage
-            if self.world.score % 3 == 0:
-                self.world.bg_state += 1
-            elif self.world.score == 83 or self.world.score == 167:
-                self.world.bg_state = 0
+
             if self.world.score == 25:
                 self.world.stage += 1
             elif self .world.score == 40:
@@ -127,75 +127,109 @@ class GameWindow(arcade.Window):
                 self.world.health += 10
 
     def run_level(self):
-        if self.current_state == INSTRUCTION_0:
+        if self.current_state == INSTRUCTIONS_0 or self.current_state == INSTRUCTIONS_1:
             self.set_moving(self.meteo_sprite_list, 0, 0,
-                            self.star_sprite_list, 0, 0,
-                            self.heart_sprite_list, 0, 0)
+                            self.star_sprite_list, 0, 0)
         elif self.world.health == 0:
             self.set_moving(self.meteo_sprite_list, 0, 0,
-                            self.star_sprite_list, 0, 0,
-                            self.heart_sprite_list, 0, 0)
+                            self.star_sprite_list, 0, 0)
+            self.heart_sprite_list.move(0, 0)
             self.world.die()
             self.current_state = GAME_OVER
         else:
             if self.world.stage == 1 :
                 self.set_moving(self.meteo_sprite_list, 0, -SPEED_METEO,
-                                self.star_sprite_list, 0, -SPEED_STAR,
-                                self.heart_sprite_list, 0, 0)
+                                self.star_sprite_list, 0, -SPEED_STAR)
             elif self.world.stage == 2 :
                 self.set_moving(self.meteo_sprite_list, 0, -(SPEED_METEO+2),
-                                self.star_sprite_list, 0, -(SPEED_STAR+2),
-                                self.heart_sprite_list, 0, 0)
-                if self.world.health < 100:
-                    self.heart_sprite_list.move(0, -(SPEED_STAR+2))
+                                self.star_sprite_list, 0, -(SPEED_STAR+2))
             elif self.world.stage == 3:
                 self.set_moving(self.meteo_sprite_list, 0, -(SPEED_METEO+4),
-                                self.star_sprite_list, 0, -(SPEED_STAR+4),
-                                self.heart_sprite_list, 0, 0)
-                if self.world.health < 70:
-                    self.heart_sprite_list.move(0, -(SPEED_STAR+4))
+                                self.star_sprite_list, 0, -(SPEED_STAR+2))
             self.bg_star_list.move(0, -SPEED_BG_STAR)
 
-    def button(self):
-        self.start = arcade.AnimatedTimeSprite()
-        self.start.textures.append(arcade.load_texture('img/start_button.png'))
-        self.start.textures.append(arcade.load_texture('img/start_button2.png'))
-        self.start.set_texture(0)
-        self.start.texture_change_frames = 10
+    def menu_button(self):
+        start = arcade.AnimatedTimeSprite()
+        start.center_x = SCREEN_WIDTH // 2
+        start.center_y = 250
 
-        self.start_list.append(self.start)
+        start.textures = []
+        start.textures.append(arcade.load_texture('img/start_button.png'))
+        start.textures.append(arcade.load_texture('img/start_button2.png'))
+        start.texture_change_frames = 20
+
+        self.menu_button_list.append(start)
+
+        how_to_play = arcade.Sprite('img/howtoplay_button.png')
+        how_to_play.center_x = 48
+        how_to_play.center_y = 43
+
+        self.menu_button_list.append(how_to_play)
+
+    def moving_bg(self):
+        bg_state = arcade.AnimatedTimeSprite()
+        bg_state.center_x = SCREEN_WIDTH // 2
+        bg_state.center_y = SCREEN_HEIGHT // 2
+
+        bg_state.textures = []
+        bg_state.textures.append(arcade.load_texture('bg/bg0.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg1.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg2.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg3.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg4.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg5.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg6.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg7.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg8.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg9.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg10.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg11.jpg'))
+        bg_state.textures.append(arcade.load_texture('bg/bg12.jpg'))
+
+        bg_state.texture_change_frames = 120
+
+        self.bg_list.append(bg_state)
+
+    def set_restart(self):
+        self.world.health = 150
+        self.world.score = 0
+        self.world.stage = 1
 
     def set_up(self):
-        self.background = arcade.load_texture(f'bg/bg{self.world.bg_state}.jpg')
         self.gameover = arcade.load_texture('bg/gameover.png')
 
         self.meteo_sprite_list = arcade.SpriteList()
         self.star_sprite_list = arcade.SpriteList()
         self.bg_star_list = arcade.SpriteList()
         self.heart_sprite_list = arcade.SpriteList()
-        self.start_list = arcade.SpriteList()
+        self.menu_button_list = arcade.SpriteList()
+        self.bg_list = arcade.SpriteList()
 
         self.add_more_meteo_star()
         self.add_item()
-        self.button()
+        self.menu_button()
+        self.moving_bg()
 
     def draw_bg(self):
-        arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,SCREEN_WIDTH ,
-                    SCREEN_HEIGHT, arcade.load_texture(f'bg/bg{self.world.bg_state}.jpg'))
+        self.bg_list.draw()
         self.bg_star_list.draw()
 
     def draw_game(self):
         self.ship_sprite.draw()
         self.meteo_sprite_list.draw()
         self.star_sprite_list.draw()
-        self.heart_sprite_list.draw()
+        if self.world.stage == 2 and self.world.health < 100 and self.world.health != 0:
+            self.heart_sprite_list.draw()
+            self.heart_sprite_list.move(0, -(SPEED_STAR + 2))
+        elif self.world.stage == 3 and self.world.health < 70 and self.world.health != 0:
+            self.heart_sprite_list.draw()
+            self.heart_sprite_list.move(0, -(SPEED_STAR + 4))
 
-        # on screen
         arcade.draw_text(f'| Score: {self.world.score}',
                          self.width - 120,
                          self.height - 45,
                          arcade.color.WHITE, 18)
-        arcade.draw_text(f'Stage: {self.world.stage}',
+        arcade.draw_text(f'Level: {self.world.stage}',
                          self.width - 198,
                          self.height - 45,
                          arcade.color.WHITE, 18)
@@ -214,13 +248,20 @@ class GameWindow(arcade.Window):
         self.draw_game()
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
                                 SCREEN_WIDTH, SCREEN_HEIGHT, self.gameover)
-        arcade.draw_text(f'GAME OVER', 170, SCREEN_HEIGHT // 2, arcade.color.WHITE, 30)
+
+        arcade.draw_text(f'{self.world.stage}',
+                         275, 380, arcade.color.BLACK, 30)
+        arcade.draw_text(f'{self.world.score}',
+                         263, 245, arcade.color.BLACK, 30)
 
     def on_draw(self):
         arcade.start_render()
 
-        if self.current_state == INSTRUCTION_0:
+        if self.current_state == INSTRUCTIONS_0:
             self.draw_instructions(0)
+            self.menu_button_list.draw()
+        elif self.current_state == INSTRUCTIONS_1:
+            self.draw_instructions(1)
         elif self.current_state == GAME_RUNNING:
             self.draw_bg()
             self.draw_game()
@@ -229,9 +270,18 @@ class GameWindow(arcade.Window):
 
     def on_key_press(self, key, key_modifiers):
         self.world.on_key_press(key, key_modifiers)
-        if key == arcade.key.SPACE and self.current_state == INSTRUCTION_0:
+        if key == arcade.key.SPACE and self.current_state == INSTRUCTIONS_0:
             self.current_state = GAME_RUNNING
             self.world.state = World.STATE_STARTED
+
+    def on_mouse_press(self, x, y, button, modifiers):
+        if self.current_state == INSTRUCTIONS_0:
+            self.current_state = INSTRUCTIONS_1
+        elif self.current_state == INSTRUCTIONS_1:
+            self.current_state = INSTRUCTIONS_0
+        elif self.current_state == GAME_OVER:
+            self.current_state = INSTRUCTIONS_0
+            self.set_restart()
 
     def update(self, delta):
         self.world.update(delta)
@@ -239,9 +289,12 @@ class GameWindow(arcade.Window):
         self.star_sprite_list.update()
         self.bg_star_list.update()
         self.heart_sprite_list.update()
+        self.menu_button_list.update_animation()
+        self.bg_list.update_animation()
 
         self.check_hit()
         self.run_level()
+
 
 def main():
     window = GameWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
