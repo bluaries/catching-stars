@@ -3,6 +3,8 @@ Artwork from https://www.flaticon.com
     https://www.cognigen-cellular.com
     https://www.freepik.com
     https://dribbble.com
+music : EDGE Soundtrack - Kakkoi
+
 """
 import arcade
 import random
@@ -21,6 +23,8 @@ SPEED_METEO = 7.5
 SPEED_STAR = 5.5
 SPEED_BG_STAR = 2
 
+music = arcade.sound.load_sound('sound/game_music.wav')
+arcade.sound.play_sound(music)
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
@@ -63,6 +67,10 @@ class GameWindow(arcade.Window):
         self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship, scale=0.47)
         self.instructions.append(arcade.load_texture('img/menu.jpg'))
         self.instructions.append(arcade.load_texture('img/howtoplay.jpg'))
+        self.press_mouse = arcade.sound.load_sound('sound/button.wav')
+        self.start_sound = arcade.sound.load_sound('sound/start.wav')
+        self.hit_sound = arcade.load_sound('sound/hit.wav')
+        self.collect_sound= arcade.load_sound('sound/collect.wav')
 
     def add_more_meteo_star(self):
         for i in range(METEORITE_COUNT):
@@ -105,6 +113,7 @@ class GameWindow(arcade.Window):
     def check_hit(self):
         star_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.star_sprite_list)
         for s in star_hit_list:
+            arcade.play_sound(self.collect_sound)
             s.reset_pos()
             self.world.score += 1
             # change stage
@@ -116,12 +125,14 @@ class GameWindow(arcade.Window):
 
         meteo_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.meteo_sprite_list)
         for m in meteo_hit_list:
+            arcade.play_sound(self.hit_sound)
             m.reset_pos()
             if self.world.health > 0:
                 self.world.health -= 10
 
         heart_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.heart_sprite_list)
         for h in heart_hit_list:
+            arcade.play_sound(self.collect_sound)
             h.reset_pos()
             if self.world.health < 110:
                 self.world.health += 10
@@ -225,17 +236,18 @@ class GameWindow(arcade.Window):
             self.heart_sprite_list.draw()
             self.heart_sprite_list.move(0, -(SPEED_STAR + 4))
 
-        arcade.draw_text(f'| Score: {self.world.score}',
-                         self.width - 120,
-                         self.height - 45,
-                         arcade.color.WHITE, 18)
-        arcade.draw_text(f'Level: {self.world.stage}',
-                         self.width - 198,
-                         self.height - 45,
-                         arcade.color.WHITE, 18)
+        level_score_bar = arcade.Sprite('img/bar.png')
+        level_score_bar.center_x = 450
+        level_score_bar.center_y = 655
+
+        arcade.draw_text(f'{self.world.stage}',
+                         418, 647.2, arcade.color.WHITE, 18)
+        arcade.draw_text(f'{self.world.score}',
+                         517, 647, arcade.color.WHITE, 18)
         self.healthbar_sprite = ModelSprite(f'healthbar/h{self.world.health}.png',
                                             model=self.world.healthbar_position, scale=0.8)
         self.healthbar_sprite.draw()
+        level_score_bar.draw()
 
     def draw_instructions(self, page_number):
         page_texture = self.instructions[page_number]
@@ -271,15 +283,19 @@ class GameWindow(arcade.Window):
     def on_key_press(self, key, key_modifiers):
         self.world.on_key_press(key, key_modifiers)
         if key == arcade.key.SPACE and self.current_state == INSTRUCTIONS_0:
+            arcade.play_sound(self.start_sound)
             self.current_state = GAME_RUNNING
             self.world.state = World.STATE_STARTED
 
     def on_mouse_press(self, x, y, button, modifiers):
         if self.current_state == INSTRUCTIONS_0:
+            arcade.play_sound(self.press_mouse)
             self.current_state = INSTRUCTIONS_1
         elif self.current_state == INSTRUCTIONS_1:
+            arcade.play_sound(self.press_mouse)
             self.current_state = INSTRUCTIONS_0
         elif self.current_state == GAME_OVER:
+            arcade.play_sound(self.press_mouse)
             self.current_state = INSTRUCTIONS_0
             self.set_restart()
 

@@ -45,7 +45,7 @@ class World:
         self.width = width
         self.height = height
         self.ship = Ship(self, 275, 125)
-        self.healthbar_position = Model(self, 110, 665)
+        self.healthbar_position = Model(self, 110, 655)
 
         self.score = 0
         self.stage = 1
