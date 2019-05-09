@@ -1,4 +1,4 @@
-# into the space
+# catching stars!
 "catch me if you can"
 
 SKE Freshman year's 
