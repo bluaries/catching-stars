@@ -57,11 +57,9 @@ class World:
 
 
     def on_key_press(self, key, key_modifiers):
-        # if key == arcade.key.SPACE:
-        #     arcade.pause(1 )
         if key == arcade.key.LEFT:
             self.ship.direction = DIR_LEFT
-        if key == arcade.key.RIGHT:
+        elif key == arcade.key.RIGHT:
             self.ship.direction = DIR_RIGHT
 
     def start(self):
@@ -77,6 +75,6 @@ class World:
         self.state = World.STATE_DEAD
 
     def update(self, delta):
-        if self.state in [World.STATE_STARTED, World.STATE_DEAD]:
+        if self.state in [World.STATE_FROZEN, World.STATE_DEAD]:
             return
         self.ship.update(delta)
