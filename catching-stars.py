@@ -329,8 +329,6 @@ class GameWindow(arcade.Window):
 
         self.check_hit()
         self.run_level()
-        player.loop
-
 
 def main():
     window = GameWindow(SCREEN_WIDTH, SCREEN_HEIGHT)
