@@ -8,6 +8,7 @@ music : EDGE Soundtrack - Kakkoi
 """
 import arcade
 import random
+import pyglet
 from models import *
 
 SCREEN_HEIGHT = 700
@@ -23,8 +24,8 @@ SPEED_METEO = 7.5
 SPEED_STAR = 5.5
 SPEED_BG_STAR = 2
 
-music = arcade.sound.load_sound('sound/game_music.wav')
-arcade.sound.play_sound(music)
+music = arcade.load_sound('sound/game_music.wav')
+arcade.play_sound(music)
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
@@ -117,10 +118,13 @@ class GameWindow(arcade.Window):
             s.reset_pos()
             self.world.score += 1
             # change stage
-
             if self.world.score == 25:
                 self.world.stage += 1
             elif self .world.score == 40:
+                self.world.stage += 1
+            elif self .world.score == 80:
+                self.world.stage += 1
+            elif self .world.score == 120:
                 self.world.stage += 1
 
         meteo_hit_list = arcade.check_for_collision_with_list(self.ship_sprite, self.meteo_sprite_list)
@@ -156,7 +160,13 @@ class GameWindow(arcade.Window):
                                 self.star_sprite_list, 0, -(SPEED_STAR+2))
             elif self.world.stage == 3:
                 self.set_moving(self.meteo_sprite_list, 0, -(SPEED_METEO+4),
-                                self.star_sprite_list, 0, -(SPEED_STAR+2))
+                                self.star_sprite_list, 0, -(SPEED_STAR+4))
+            elif self.world.stage == 4:
+                self.set_moving(self.meteo_sprite_list, 0, -(SPEED_METEO+8),
+                                self.star_sprite_list, 0, -(SPEED_STAR+8))
+            elif self.world.stage == 5:
+                self.set_moving(self.meteo_sprite_list, 0, -(SPEED_METEO+12),
+                                self.star_sprite_list, 0, -(SPEED_STAR+12))
             self.bg_star_list.move(0, -SPEED_BG_STAR)
 
     def menu_button(self):
@@ -201,6 +211,12 @@ class GameWindow(arcade.Window):
 
         self.bg_list.append(bg_state)
 
+    def run_bg_msc(self, delta):
+        self.bg_music_time += delta
+        if self.bg_music_time > 90:
+            arcade.sound.play_sound(arcade.sound.load_sound('sound/game_music.wav'))
+            self.bg_music_time = 0
+
     def set_restart(self):
         self.world.health = 150
         self.world.score = 0
@@ -231,10 +247,13 @@ class GameWindow(arcade.Window):
         self.star_sprite_list.draw()
         if self.world.stage == 2 and self.world.health < 100 and self.world.health != 0:
             self.heart_sprite_list.draw()
-            self.heart_sprite_list.move(0, -(SPEED_STAR + 2))
+            self.heart_sprite_list.move(0, -(SPEED_STAR+2))
         elif self.world.stage == 3 and self.world.health < 70 and self.world.health != 0:
             self.heart_sprite_list.draw()
-            self.heart_sprite_list.move(0, -(SPEED_STAR + 4))
+            self.heart_sprite_list.move(0, -(SPEED_STAR+4))
+        elif self.world.stage == 4 and self.world.health < 30 and self.world.health != 0:
+            self.heart_sprite_list.draw()
+            self.heart_sprite_list.move(0, -(SPEED_STAR+8))
 
         level_score_bar = arcade.Sprite('img/bar.png')
         level_score_bar.center_x = 450
@@ -310,6 +329,7 @@ class GameWindow(arcade.Window):
 
         self.check_hit()
         self.run_level()
+        player.loop
 
 
 def main():
