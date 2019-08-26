@@ -2,6 +2,7 @@
 "catch me if you can"
 
 SKE Freshman year's 
-** second semester project
+
+2nd semester project
 
 # เห็นโค้ดแดงแล้วอยากโยนคอม
