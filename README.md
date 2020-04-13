@@ -5,4 +5,3 @@ SKE Freshman year's
 
 2nd semester project
 
-# เห็นโค้ดแดงแล้วอยากโยนคอม
