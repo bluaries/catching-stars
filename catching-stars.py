@@ -6,10 +6,10 @@ Artwork from https://www.flaticon.com
 music : EDGE Soundtrack - Kakkoi
 
 """
+
 import arcade
 import random
-import pyglet
-from models import *
+from models import World
 
 SCREEN_HEIGHT = 700
 SCREEN_WIDTH = 570
@@ -24,13 +24,14 @@ SPEED_METEO = 7.5
 SPEED_STAR = 5.5
 SPEED_BG_STAR = 2
 
+WHITE_COLOR = (224, 224, 224)
+
 music = arcade.load_sound('sound/game_music.wav')
 arcade.play_sound(music)
 
 class ModelSprite(arcade.Sprite):
     def __init__(self, *args, **kwargs):
         self.model = kwargs.pop('model', None)
-
         super().__init__(*args, **kwargs)
 
     def sync_with_model(self):
@@ -41,11 +42,9 @@ class ModelSprite(arcade.Sprite):
         self.sync_with_model()
         super().draw()
 
-
 class ItemSprite(arcade.Sprite):
     def reset_pos(self):
-        self.center_y = random.randrange(SCREEN_HEIGHT,
-                                         SCREEN_HEIGHT + 300)
+        self.center_y = random.randrange(SCREEN_HEIGHT, SCREEN_HEIGHT + 300)
         self.center_x = random.randrange(SCREEN_WIDTH)
 
     def update(self):
@@ -53,7 +52,6 @@ class ItemSprite(arcade.Sprite):
 
         if self.top < 0:
             self.reset_pos()
-
 
 class GameWindow(arcade.Window):
     def __init__(self, width, height):
@@ -65,13 +63,14 @@ class GameWindow(arcade.Window):
         self.current_state = INSTRUCTIONS_0
 
         self.world = World(width, height)
-        self.ship_sprite = ModelSprite('img/ship.png', model=self.world.ship, scale=0.47)
+        self.ship_sprite = ModelSprite('img/ship2.0.png', model=self.world.ship, scale=0.47)
         self.instructions.append(arcade.load_texture('img/menu.jpg'))
         self.instructions.append(arcade.load_texture('img/howtoplay.jpg'))
+
         self.press_mouse = arcade.sound.load_sound('sound/button.wav')
         self.start_sound = arcade.sound.load_sound('sound/start.wav')
         self.hit_sound = arcade.load_sound('sound/hit.wav')
-        self.collect_sound= arcade.load_sound('sound/collect.wav')
+        self.collect_sound = arcade.load_sound('sound/collect.wav')
 
     def add_more_meteo_star(self):
         for i in range(METEORITE_COUNT):
@@ -170,47 +169,53 @@ class GameWindow(arcade.Window):
             self.bg_star_list.move(0, -SPEED_BG_STAR)
 
     def menu_button(self):
-        start = arcade.AnimatedTimeSprite()
-        start.center_x = SCREEN_WIDTH // 2
-        start.center_y = 250
+        duration_button = 600
+        # button animation
+        button = arcade.AnimatedTimeBasedSprite('img/start_button1.png')
+        button.center_x = SCREEN_WIDTH // 2
+        button.center_y = SCREEN_HEIGHT // 2
 
-        start.textures = []
-        start.textures.append(arcade.load_texture('img/start_button.png'))
-        start.textures.append(arcade.load_texture('img/start_button2.png'))
-        start.texture_change_frames = 20
+        # loading the frames individually
+        # frame 1
+        texture = arcade.load_texture('img/start_button1.png')
+        button.frames.append(arcade.AnimationKeyframe(tile_id=0, duration=duration_button, texture= arcade.load_texture('img/start_button1.png')))
+        # frame 2
+        button.frames.append(arcade.AnimationKeyframe(tile_id=1, duration=duration_button, texture= arcade.load_texture('img/start_button2.png')))
 
-        self.menu_button_list.append(start)
+        self.menu_button_list.append(button)
 
         how_to_play = arcade.Sprite('img/howtoplay_button.png')
         how_to_play.center_x = 48
         how_to_play.center_y = 43
-
+    
         self.menu_button_list.append(how_to_play)
 
+        version = arcade.create_text_sprite(text='v2.0', start_x=80, start_y=26, color=WHITE_COLOR, font_size=12, bold=True)
+
+        self.menu_button_list.append(version)
+
     def moving_bg(self):
-        bg_state = arcade.AnimatedTimeSprite()
+        duration_bg = 2400
+        bg_state = arcade.AnimatedTimeBasedSprite('bg/bg0.jpg')
         bg_state.center_x = SCREEN_WIDTH // 2
         bg_state.center_y = SCREEN_HEIGHT // 2
 
-        bg_state.textures = []
-        bg_state.textures.append(arcade.load_texture('bg/bg0.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg1.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg2.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg3.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg4.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg5.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg6.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg7.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg8.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg9.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg10.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg11.jpg'))
-        bg_state.textures.append(arcade.load_texture('bg/bg12.jpg'))
-
-        bg_state.texture_change_frames = 120
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=0, duration=duration_bg, texture= arcade.load_texture('bg/bg0.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=1, duration=duration_bg, texture= arcade.load_texture('bg/bg1.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=2, duration=duration_bg, texture= arcade.load_texture('bg/bg2.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=3, duration=duration_bg, texture= arcade.load_texture('bg/bg3.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=4, duration=duration_bg, texture= arcade.load_texture('bg/bg4.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=5, duration=duration_bg, texture= arcade.load_texture('bg/bg5.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=6, duration=duration_bg, texture= arcade.load_texture('bg/bg6.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=7, duration=duration_bg, texture= arcade.load_texture('bg/bg7.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=8, duration=duration_bg, texture= arcade.load_texture('bg/bg8.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=9, duration=duration_bg, texture= arcade.load_texture('bg/bg9.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=10, duration=duration_bg, texture= arcade.load_texture('bg/bg10.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=11, duration=duration_bg, texture= arcade.load_texture('bg/bg11.jpg')))
+        bg_state.frames.append(arcade.AnimationKeyframe(tile_id=12, duration=duration_bg, texture= arcade.load_texture('bg/bg12.jpg')))
 
         self.bg_list.append(bg_state)
-
+    
     def run_bg_msc(self, delta):
         self.bg_music_time += delta
         if self.bg_music_time > 90:
@@ -273,7 +278,7 @@ class GameWindow(arcade.Window):
         arcade.draw_texture_rectangle(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2,
                                       page_texture.width,
                                       page_texture.height, page_texture, 0)
-
+        
     def draw_gameover(self):
         self.draw_bg()
         self.draw_game()
@@ -281,13 +286,12 @@ class GameWindow(arcade.Window):
                                 SCREEN_WIDTH, SCREEN_HEIGHT, self.gameover)
 
         arcade.draw_text(f'{self.world.stage}',
-                         275, 380, arcade.color.BLACK, 30)
+                            275, 380, arcade.color.BLACK, 30)
         arcade.draw_text(f'{self.world.score}',
-                         263, 245, arcade.color.BLACK, 30)
+                            263, 245, arcade.color.BLACK, 30)
 
     def on_draw(self):
         arcade.start_render()
-
         if self.current_state == INSTRUCTIONS_0:
             self.draw_instructions(0)
             self.menu_button_list.draw()
@@ -320,10 +324,12 @@ class GameWindow(arcade.Window):
 
     def update(self, delta):
         self.world.update(delta)
+
         self.meteo_sprite_list.update()
         self.star_sprite_list.update()
         self.bg_star_list.update()
         self.heart_sprite_list.update()
+
         self.menu_button_list.update_animation()
         self.bg_list.update_animation()
 

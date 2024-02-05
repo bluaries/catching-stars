@@ -1,4 +1,4 @@
-import arcade.key
+import arcade
 
 SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 900
